@@ -1,26 +1,26 @@
 package main
 
 import "core:fmt"
-import "core:os"
 import "core:math/rand"
-import "core:time"
 import "core:mem"
+import "core:os"
+import "core:time"
 import SDL "vendor:sdl2"
 
 State :: struct
 {
 	// chip-8
-	memory:      [MEMORY_SIZE]u8,
-	pc:          u16,
-	I:           u16,
-	V:           [REGISTER_COUNT]u8,
-	stack:       [STACK_DEPTH]u16,
-	sp:          u8,
-	sound_timer: u8,
-	delay_timer: u8,
-	display:     [DISPLAY_SIZE]bool,
-	draw_flag:   bool,
-	keypad:      [KEY_COUNT]bool,
+	memory:           [MEMORY_SIZE]u8,
+	pc:               u16,
+	I:                u16,
+	V:                [REGISTER_COUNT]u8,
+	stack:            [STACK_DEPTH]u16,
+	sp:               u8,
+	sound_timer:      u8,
+	delay_timer:      u8,
+	display:          [DISPLAY_SIZE]bool,
+	draw_flag:        bool,
+	keypad:           [KEY_COUNT]bool,
 
 	// instructions per second
 	last_cycle_ticks: u32,
@@ -28,7 +28,7 @@ State :: struct
 
 state := State{}
 
-main :: proc()
+main :: proc() 
 {
 	using state
 	rand.reset(auto_cast time.now()._nsec)
@@ -44,7 +44,7 @@ main :: proc()
 		SDL.WINDOWPOS_CENTERED,
 		SCREEN_WIDTH,
 		SCREEN_HEIGHT,
-		SDL.WINDOW_SHOWN
+		SDL.WINDOW_SHOWN,
 	)
 	assert(window != nil, SDL.GetErrorString())
 	defer SDL.DestroyWindow(window)
@@ -60,8 +60,8 @@ main :: proc()
 	texture := SDL.CreateTexture(renderer, .ARGB8888, .STATIC, SCREEN_WIDTH, SCREEN_HEIGHT)
 	defer SDL.DestroyTexture(texture)
 
-	chip8_buffer  := SDL.CreateRGBSurface(0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 32, 0, 0, 0, 0)
-	screen_buffer := SDL.CreateRGBSurface(0, SCREEN_WIDTH,  SCREEN_HEIGHT,  32, 0, 0, 0, 0)
+	chip8_buffer := SDL.CreateRGBSurface(0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 32, 0, 0, 0, 0)
+	screen_buffer := SDL.CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)
 
 	cpu_init()
 	cpu_load_rom("roms/BRIX")
@@ -98,8 +98,8 @@ cpu_init :: proc()
 	using state
 
 	pc = START_ADDRESS
-	I  = 0
-	sp = 0	
+	I = 0
+	sp = 0
 
 	// load font into memory
 	for i in 0 ..< FONTSET_SIZE
@@ -160,13 +160,13 @@ handle_event :: proc(event: SDL.Event) -> bool
 {
 	using state
 
-	#partial switch event.type
+	#partial switch event.type 
 	{
-		case .QUIT:
+	case .QUIT:
 		{
 			return true
 		}
-		case .KEYDOWN:
+	case .KEYDOWN:
 		{
 			if event.key.keysym.scancode == SDL.SCANCODE_ESCAPE
 			{
@@ -182,7 +182,7 @@ handle_event :: proc(event: SDL.Event) -> bool
 				}
 			}
 		}
-		case .KEYUP:
+	case .KEYUP:
 		{
 			for i in 0 ..< KEY_COUNT
 			{
@@ -193,15 +193,15 @@ handle_event :: proc(event: SDL.Event) -> bool
 				}
 			}
 		}
-		case .DROPFILE:
+	case .DROPFILE:
 		{
 			file_path := event.drop.file
-			
+
 			// reset memory & load dropped rom file
 			state = {}
 			cpu_init()
 			cpu_load_rom(string(file_path))
-			
+
 			SDL.free(&file_path)
 		}
 	}
